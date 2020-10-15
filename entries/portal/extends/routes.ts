@@ -10,10 +10,11 @@ export default {
     component: () => import('./calendar.vue')
   },
   application: {
-    AA: {
-      path: '/application/ZY/demo',
-      name: 'applicationDemo',
-      component: () => import('./demo.vue'),
+    /* 树形工单 */
+    workOrderTree: {
+      path: 'workOrderTree',
+      name: 'workOrderTree',
+      component: () => import('./WorkOrderTree.vue'),
     },
   }
 } as any;
