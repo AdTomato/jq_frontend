@@ -214,9 +214,9 @@ export default class CommonHeader extends Vue {
   toAdmin() {
     const token = localStorage.getItem('token');
     if (this.isDingTalk && token) {
-      window.open(`${env.portalHost}/admin?admin_token=${token}`, '_blank');
+      window.open(`${env.adminHost}/admin?admin_token=${token}`, '_blank');
     } else {
-      window.open(`${env.portalHost}/admin`, '_blank');
+      window.open(`${env.adminHost}/admin`, '_blank');
     }
   }
 
@@ -303,7 +303,7 @@ export default class CommonHeader extends Vue {
     localStorage.setItem('locale', this.$i18n.locale);
   }
 
-  /* 
+  /*
   * 修改密码
   */
  async changePwd() {
@@ -337,8 +337,8 @@ export default class CommonHeader extends Vue {
    this.logout();
  }
 
- /* 
- * 重置密码错误提示 
+ /*
+ * 重置密码错误提示
  */
 resetErrTips() {
   this.oldPwdErrTips = '';
@@ -578,7 +578,7 @@ resetErrTips() {
     position: relative;
     &:before{
       content: '*';
-      color: @error-color;    
+      color: @error-color;
       position: absolute;
       left: -0.5em;
     }

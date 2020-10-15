@@ -14,7 +14,9 @@ if (enableProxy) {
     oauthHost: process.env.VUE_APP_OAUTH_HOST,
     apiHost: process.env.VUE_APP_API,
     scope: process.env.VUE_APP_OAUTH_SCOPE,
-    portalHost: process.env.VUE_APP_PORTAL_HOST
+    portalHost: process.env.VUE_APP_PORTAL_HOST,
+    /* 兼容之前的配置，如果未配置 VUE_APP_ADMIN_HOST 变量 则使用 VUE_APP_PORTAL_HOST */
+    adminHost: process.env.VUE_APP_ADMIN_HOST || process.env.VUE_APP_PORTAL_HOST,
   });
 
   (window as any).config = env;
