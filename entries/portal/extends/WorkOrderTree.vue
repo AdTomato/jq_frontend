@@ -1,7 +1,11 @@
 <template>
   <div>
-    <!--    <div>{{ userInfo.id }}</div>-->
-    <div v-for="workOrder in workOrders">
+    <h2>我创建的工单</h2>
+    <div v-for="workOrder in createdWorkOrders">
+      <div>{{ workOrder }}</div>
+    </div>
+    <h2>我收到的工单</h2>
+    <div v-for="workOrder in recivedWorkOrders">
       <div>{{ workOrder }}</div>
     </div>
   </div>
@@ -11,40 +15,52 @@
 import OAuthApi from "@/apis/oauth";
 import ExtApi from './apis/extapi'
 import {Component, Vue} from "vue-property-decorator";
-import {WorkOrder} from "./types/WorkOrder";
+import {WorkOrder, WorkOrderQuery} from "./types/WorkOrder";
 
 @Component({
   name: 'WorkOrderTree',
 })
 export default class WorkOrderTree extends Vue {
 
-  /* 用户信息 */
-  userInfo: any = {};
+  /* 查询参数 */
+  params?: WorkOrderQuery = {};
 
-  /* 工单信息 */
-  workOrders: WorkOrder[] = [];
+  /* 用户信息 */
+  userInfo?: any = {};
+
+  /* 创建的工单 */
+  createdWorkOrders: WorkOrder[] = [];
+
+  /* 收到的工单 */
+  recivedWorkOrders: WorkOrder[] = [];
+
 
   created() {
-    this.getUserInfo().then(
-      () => this.getWorkOrderTreeData()
-    )
+    this.getUserInfo();
+    this.query()
   }
 
   /* 获取当前用户信息 */
-  async getUserInfo() {
-    const res = await OAuthApi.getUserInfo();
-    if (res.errcode === 0) {
-      this.userInfo = res.data;
-    }
+  getUserInfo() {
+    this.userInfo = JSON.parse(sessionStorage.getItem("user") as string) as any
   }
 
-  /* 获取工单数据 */
-  async getWorkOrderTreeData() {
-    const {data: res} = await ExtApi.getWorkOrderTreeList()
+  /* 获取我创建的工单 */
+  async getWorkOrderByCreator() {
+    const data = await ExtApi.getWorkOrderByCreator(this.params)
+    this.createdWorkOrders = data;
+  }
 
-    if (res.errcode === 0) {
-      this.workOrders = res.data;
-    }
+  /* 获取我创建的工单 */
+  async getWorkOrderByRecipient() {
+    const data = await ExtApi.getWorkOrderByRecipient(this.params)
+    this.recivedWorkOrders = res.data;
+  }
+
+  /* 查询数据 */
+  async query() {
+    this.getWorkOrderByCreator()
+    this.getWorkOrderByRecipient()
   }
 }
 </script>

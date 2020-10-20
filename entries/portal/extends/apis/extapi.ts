@@ -1,29 +1,39 @@
-import Axios, {AxiosRequestConfig} from "axios";
-import {AxiosResult, WorkOrder} from "../types/WorkOrder";
+import {WorkOrder, WorkOrderQuery} from "../types/WorkOrder";
+import request from './service';
 
-const request = Axios.create({
-  'Content-Type': 'application/json',
-  'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
-} as AxiosRequestConfig)
-
-
-const workOrderTreeUrl = `/api/work_order`;
+const WorkOrderUrl = (uid: string, type: string) => `/api/work_order/${uid}/${type}`;
 
 export default {
 
-  getWorkOrderTreeList(): AxiosResult<WorkOrder> {
+  getWorkOrder(type: 'create' | 'receive', queryParams?: WorkOrderQuery): Promise<WorkOrder[]> {
     const uid: string = (JSON.parse(sessionStorage.getItem("user") as string) as any).id
     if (!uid) {
       return;
     }
-
-    return request.get(`${workOrderTreeUrl}/${uid}`, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+    const url = WorkOrderUrl(uid, type);
+    const r = request({
+      url,
+      method: 'get',
+      params: {
+        ...queryParams
       }
-    });
-
+    })
+    return r as Promise<WorkOrder[]>;
   },
 
+  /**
+   * 我创建的工单
+   * @param queryParams
+   */
+  getWorkOrderByCreator(queryParams?: WorkOrderQuery): Promise<WorkOrder[]> {
+    return this.getWorkOrder('create', queryParams)
+  },
+
+  /**
+   * 我收到的工单
+   * @param queryParams
+   */
+  getWorkOrderByRecipient(queryParams?: WorkOrderQuery): Promise<WorkOrder[]> {
+    return this.getWorkOrder('receive', queryParams)
+  }
 };
