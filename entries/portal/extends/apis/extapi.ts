@@ -1,11 +1,11 @@
-import {WorkOrder, WorkOrderQuery} from "../types/WorkOrder";
+import {WorkOrder, WorkOrderQuery, WorkOrderType} from "../types/WorkOrder";
 import request from './service';
 
 const WorkOrderUrl = (uid: string, type: string) => `/api/work_order/${uid}/${type}`;
 
 export default {
 
-  getWorkOrder(type: 'create' | 'receive', queryParams?: WorkOrderQuery): Promise<WorkOrder[]> {
+  getWorkOrder(type: WorkOrderType, queryParams?: WorkOrderQuery): Promise<WorkOrder[]> {
     const uid: string = (JSON.parse(sessionStorage.getItem("user") as string) as any).id
     if (!uid) {
       return;

@@ -1,5 +1,5 @@
 import Axios, {AxiosRequestConfig, AxiosResponse} from "axios";
-import {Data} from "../types/WorkOrder";
+import {Data} from "../types/data";
 
 const service = Axios.create({
   timeout: 5000,
@@ -19,13 +19,14 @@ service.interceptors.request.use(
 
 service.interceptors.response.use(
   value => {
-    debugger;
-    const res: AxiosResponse<Data> = value
-    if (res.data.errcode === 0) {
-      return res.data.data
-    } else {
-      console.log(res.data.errmsg)
-      return Promise.reject(res.data.errmsg)
+    if (value) {
+      const res: AxiosResponse<Data> = value
+      if (res.data.errcode === 0) {
+        return res.data.data
+      } else {
+        console.log(res.data.errmsg)
+        return Promise.reject(res.data.errmsg)
+      }
     }
   },
   error => {
