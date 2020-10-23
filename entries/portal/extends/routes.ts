@@ -10,11 +10,17 @@ export default {
     component: () => import('./calendar.vue')
   },
   application: {
-    /* 树形工单 */
-    workOrderTree: {
-      path: 'workOrderTree',
-      name: 'workOrderTree',
-      component: () => import('./WorkOrderTree.vue'),
+    /* 我创建的工单 */
+    myCreatedWorkOrder: {
+      path: 'myCreatedWorkOrder',
+      name: 'myCreatedWorkOrder',
+      component: () => import('./pages/WorkOrderCreatedByMe'),
+    },
+    /* 我收到的工单 */
+    myReceivedWorkOrder: {
+      path: 'myReceivedWorkOrder',
+      name: 'myReceivedWorkOrder',
+      component: () => import('./pages/WorkOrderReceivedByMe'),
     },
   }
 } as any;
