@@ -1,10 +1,17 @@
 import {WorkOrder, WorkOrderQuery, WorkOrderType} from "../types/WorkOrder";
 import request from './service';
+import {Dict, DictData, DictItem} from "../types/data";
 
 const WorkOrderUrl = (uid: string, type: string) => `/api/work_order/${uid}/${type}`;
+const DictUrl = (dictItem: string) => `/api/dict/${dictItem}`;
 
 export default {
 
+  /**
+   * 获取工单数据
+   * @param type
+   * @param queryParams
+   */
   getWorkOrder(type: WorkOrderType, queryParams?: WorkOrderQuery): Promise<WorkOrder[]> {
     const uid: string = (JSON.parse(sessionStorage.getItem("user") as string) as any).id
     if (!uid) {
@@ -19,6 +26,21 @@ export default {
       }
     })
     return r as Promise<WorkOrder[]>;
+  },
+
+  /**
+   * 获取数据字典
+   * @param dictItem
+   */
+  async getDict(dictItem: DictItem) {
+    const url = DictUrl(dictItem);
+    const result: Dict[] = await request({
+      url,
+      method: 'get',
+    }) as Dict[];
+    return result.reduce((prev, cur) => {
+      return {...prev, [cur.code]: cur}
+    }, {} as DictData)
   },
 
   /**

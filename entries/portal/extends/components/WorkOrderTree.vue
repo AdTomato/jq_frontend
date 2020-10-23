@@ -65,52 +65,74 @@
         </a-space>
       </a-form-model-item>
     </a-form-model>
-    <a-table
-      class="table"
-      :columns="calcColums"
-      :data-source="workOrders"
-      :style="{height: tableHeight}"
-      ref="table">
-      <!-- 标题摘要渲染 -->
-      <template slot="titleRender" slot-scope="text,row">
-        <span v-if="row['transDepartment'] == true" class="work-order-type cooperation">协作</span>
-        <span v-if="row['transDepartment'] == false" class="work-order-type internal">内部</span>
-        <span>{{ text }}</span>
-      </template>
-      <!-- 紧急程度渲染 -->
-      <template slot="urgencyRender" slot-scope="value">
-        <dict-item :value="value" :data="urgencyDict" tag/>
-      </template>
-      <!-- 工单状态渲染 -->
-      <template slot="statusRender" slot-scope="value">
-        <dict-item :value="value" :data="statusDict" tag/>
-      </template>
-      <!-- 指派给渲染 -->
-      <template slot="executorRender" slot-scope="value">
-        <div v-for="item in value">
-          {{ item }}
-        </div>
-      </template>
-      <template slot="actionsRender" slot-scope="value,row">
-        <a-space :size="6">
-          <a-button
-            size="small"
-            shape="round"
-            type="primary"
-            :href="`/form/detail?startWorkflowCode=workFlowDeptN&pid=${value}`"
-            target="_blank"
-            ghost>内部
-          </a-button>
-          <a-button
-            size="small"
-            shape="round"
-            target="_blank"
-            :href="`/form/detail?startWorkflowCode=work_flow_k_dept&pid=${value}`"
-          >协作
-          </a-button>
-        </a-space>
-      </template>
-    </a-table>
+    <div class="table" ref="table" :style="{height: tableHeight}">
+      <a-spin
+        size="large"
+        :spinning="loading"
+        v-if="loading"
+        class="spinner"
+      />
+      <a-table
+        v-else
+        :columns="calcColums"
+        :data-source="workOrders">
+        <!-- 标题摘要渲染 -->
+        <template slot="titleRender" slot-scope="text,row">
+          <span v-if="row['transDepartment'] == true" class="work-order-type cooperation">协作</span>
+          <span v-if="row['transDepartment'] == false" class="work-order-type internal">内部</span>
+          <a
+            v-if="row['workItemId'] && row['workflowId']"
+            :href="`/form/detail?workitemId=${row['workItemId']}&workflowInstanceId=${row['workflowId']}`">{{
+              text
+            }}</a>
+          <span v-else>{{ text }}</span>
+        </template>
+        <!-- 紧急程度渲染 -->
+        <template slot="urgencyRender" slot-scope="value">
+          <dict-item :value="value" :data="urgencyDict" tag/>
+        </template>
+        <!-- 创建人 -->
+        <template slot="creatorRender" slot-scope="value">
+          <dict-item :value="value" :data="userDict"/>
+        </template>
+        <!-- 工单状态渲染 -->
+        <template slot="statusRender" slot-scope="value">
+          <dict-item :value="value" :data="statusDict" tag/>
+        </template>
+        <!-- 指派给渲染 -->
+        <template slot="executorRender" slot-scope="value,row">
+          <!--        <div v-if="row['transDepartment']">-->
+          <!--          <template v-for="item in row['department']">-->
+          <!--            <dict-item :value="item" :data="departmentDict"/>-->
+          <!--          </template>-->
+          <!--        </div>-->
+          <!--        <div v-else>-->
+          <template v-for="item in value">
+            <dict-item :value="item" :data="userDict"/>
+          </template>
+          <!--        </div>-->
+        </template>
+        <template slot="actionsRender" slot-scope="value,row">
+          <a-space :size="6">
+            <a-button
+              size="small"
+              shape="round"
+              type="primary"
+              :href="`/form/detail?startWorkflowCode=workFlowDeptN&pid=${value}`"
+              target="_blank"
+              ghost>内部
+            </a-button>
+            <a-button
+              size="small"
+              shape="round"
+              target="_blank"
+              :href="`/form/detail?startWorkflowCode=work_flow_k_dept&pid=${value}`"
+            >协作
+            </a-button>
+          </a-space>
+        </template>
+      </a-table>
+    </div>
   </div>
 </template>
 
@@ -137,6 +159,8 @@ export default class WorkOrderTree extends Vue {
     default: 'create'
   })
   workOrderType: WorkOrderType;
+
+  loading: boolean = true;
 
   /* 查询参数 */
   params?: WorkOrderQuery = {};
@@ -165,6 +189,7 @@ export default class WorkOrderTree extends Vue {
       dataIndex: 'creator',
       align: "center",
       ellipsis: true,
+      scopedSlots: {customRender: 'creatorRender'},
     }, {
       title: '指派给',
       dataIndex: 'executor',
@@ -194,33 +219,56 @@ export default class WorkOrderTree extends Vue {
     }
   ]
 
+  /* 用户字典 */
+  static userDict: DictData;
+
+  /* 部门字典 */
+  static departmentDict: DictData;
+
   /* 紧急程度数据字典 */
-  urgencyDict: DictData = {
-    DEFAULT: {name: '-'},
-    NORMAL: {name: '一般'},
-    URGENCY: {name: '紧急', color: 'volcano'}
-  }
+  static urgencyDict: DictData;
 
   /* 工单状态数据字典 */
-  statusDict: DictData = {
-    DEFAULT: {name: '-'},
-    PROCESSING: {name: '处理中', color: 'volcano'}
-  }
+  static statusDict: DictData;
 
   /* 表格高度 */
-  tableHeight: string;
+  tableHeight: string = '';
 
   created() {
-    this.getUserInfo();
-    this.query()
+    // this.getUserInfo();
+    this.init().then(() => {
+        this.query()
+      }
+    );
   }
 
   mounted() {
-    const table = this.$refs.table as Vue;
+    const table = this.$refs.table as HTMLElement;
     const param = this.$refs.param as Vue;
     if (table && param) {
-      this.tableHeight = `${table.$el.clientHeight - param.$el.clientHeight}px`
+      this.tableHeight = `${table.clientHeight - param.$el.clientHeight}px`
     }
+  }
+
+  /* 初始化，获取数据字典 */
+  async init() {
+    return Promise.all([this.getUserDict(), this.getDepartmentDict(), this.getUrgencyDict(), this.getStatusDict()])
+  }
+
+  async getUserDict() {
+    this.userDict = await ExtApi.getDict('user');
+  }
+
+  async getDepartmentDict() {
+    this.departmentDict = await ExtApi.getDict('department');
+  }
+
+  async getUrgencyDict() {
+    this.urgencyDict = await ExtApi.getDict('urgency_degree');
+  }
+
+  async getStatusDict() {
+    this.statusDict = await ExtApi.getDict('work_order_status');
   }
 
   /* 获取当前用户信息 */
@@ -230,13 +278,15 @@ export default class WorkOrderTree extends Vue {
 
   /* 查询数据 */
   async query() {
+    this.loading = true;
     const data = await ExtApi.getWorkOrder(this.workOrderType, this.params)
-    if (this.workOrderType === 'create') {
-      console.log('我创建的工单', data)
-    } else if (this.workOrderType === 'receive') {
-      console.log('我收到的工单', data)
-    }
+    // if (this.workOrderType === 'create') {
+    //   console.log('我创建的工单', data)
+    // } else if (this.workOrderType === 'receive') {
+    //   console.log('我收到的工单', data)
+    // }
     this.workOrders = data;
+    this.loading = false;
   }
 
   /* 计算属性 */
@@ -266,7 +316,15 @@ export default class WorkOrderTree extends Vue {
     height: 100%;
     padding-top: 16px;
     box-sizing: border-box;
+    //border: 1px red dashed;
     overflow: auto;
+
+    .spinner {
+      display: flex;
+      height: 100%;
+      justify-content: center;
+      align-items: center;
+    }
 
     .work-order-type {
       font-size: 10px;
