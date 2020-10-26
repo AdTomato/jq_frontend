@@ -56,7 +56,7 @@ export default class DictItem extends Vue {
    * 计算属性 显示值
    */
   get showValue() {
-    if (this.data) {
+    if (this.data && this.data[this.value] && this.data[this.value].name) {
       return this.data[this.value].name
     }
     return this.value
@@ -66,10 +66,14 @@ export default class DictItem extends Vue {
    * 计算属性 标签颜色
    */
   get tagColor() {
-    if (this.tag && this.data) {
-      return this.color || this.data[this.value].color
+    if (!this.tag) return '';
+
+    if (this.color) {
+      return this.color
+    } else if (this.data && this.data[this.value] && this.data[this.value].color) {
+      return this.data[this.value].color
     }
-    return '';
+
   }
 
 }

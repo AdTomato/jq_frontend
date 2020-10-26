@@ -9,11 +9,11 @@ export interface Dict {
   /**
    * 字典编码
    */
-  code: string | number;
+  code?: string | number;
   /**
    * 显示值
    */
-  name: string;
+  name?: string;
   /**
    * 是否使用标签
    */

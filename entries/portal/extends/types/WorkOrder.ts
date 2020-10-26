@@ -1,6 +1,6 @@
 export type WorkOrderType = 'create' | 'receive';
 
-export type UrgencyDegree = 'NORMAL' | 'URGENCY'
+export type UrgencyDegree = string;
 
 export type WorkOrderStatus = 'PROCESSING' | 'OVER' | string;
 

@@ -19,10 +19,10 @@
           placeholder="请选择紧急程度"
           allowClear
           class="param-width">
-          <a-select-option value="NORMAL">
+          <a-select-option value="一般">
             一般
           </a-select-option>
-          <a-select-option value="URGENCY">
+          <a-select-option value="紧急">
             紧急
           </a-select-option>
         </a-select>
@@ -286,7 +286,11 @@ export default class WorkOrderTree extends Vue {
   }
 
   async getUrgencyDict() {
-    this.urgencyDict = await ExtApi.getDict('urgency_degree');
+    // this.urgencyDict = await ExtApi.getDict('urgency_degree');
+    this.urgencyDict = await Promise.resolve({
+      '一般': {},
+      '紧急': {color: 'volcano'}
+    } as DictData);
   }
 
   async getStatusDict() {
