@@ -117,15 +117,15 @@
         <template slot="deadlineRender" slot-scope="value,row">
           <span v-if="value && row['status'] === 'PROCESSING'">
             <a-tag
-              v-if="-1 < overdueTips(value) && overdueTips(value) < 0"
+              v-if="overdueTips(value) == 0"
               color="orange">
               今日到期
             </a-tag>
-            <a-tag v-else-if="overdueTips(value) >0 && overdueTips(value) < 1 " color="red">
-              逾期 1 天
+            <a-tag v-else-if="overdueTips(value) == 1 " color="orange">
+              明日到期
             </a-tag>
-            <a-tag v-else-if="overdueTips(value) >=1 " color="red">
-              逾期 {{ parseInt(overdueTips(value)) }} 天
+            <a-tag v-else-if="overdueTips(value) < 0 " color="red">
+              逾期 {{ Math.abs(overdueTips(value)) }} 天
             </a-tag>
             <span v-else>{{ value }}</span>
           </span>
@@ -323,14 +323,18 @@ export default class WorkOrderTree extends Vue {
     return this.columns
   }
 
-  /* 逾期天数 */
+  /**
+   * 日期相差天数
+   * @param dealine
+   */
   overdueTips(dealine: string) {
     if (dealine) {
-      const day = moment().diff(moment(dealine), 'seconds') / 86400
-      debugger;
+      const now = moment().format('yyyy-MM-DD');
+      const end = moment(dealine).format('yyyy-MM-DD');
+      const day = moment(end).diff(moment(now), 'days')
       return day;
     }
-    return 0;
+    return 1;
   }
 
 }
