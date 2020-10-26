@@ -81,10 +81,11 @@
           <span v-if="row['transDepartment'] == true" class="work-order-type cooperation">协作</span>
           <span v-if="row['transDepartment'] == false" class="work-order-type internal">内部</span>
           <a
-            v-if="row['workItemId'] && row['workflowId']"
-            :href="`/form/detail?workitemId=${row['workItemId']}&workflowInstanceId=${row['workflowId']}`">{{
-              text
-            }}</a>
+            v-if="row['workflowId']"
+            :href="`/form/detail?workflowInstanceId=${row['workflowId']}`"
+            target="_blank">
+            {{ text }}
+          </a>
           <span v-else>{{ text }}</span>
         </template>
         <!-- 紧急程度渲染 -->
