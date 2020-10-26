@@ -112,6 +112,25 @@
           </template>
           <!--        </div>-->
         </template>
+        <!-- 要求完成时间渲染 -->
+        <template slot="deadlineRender" slot-scope="value,row">
+          <span v-if="value && row['status'] === 'PROCESSING'">
+            <a-tag
+              v-if="-1 < overdueTips(value) && overdueTips(value) < 0"
+              color="orange">
+              今日到期
+            </a-tag>
+            <a-tag v-else-if="overdueTips(value) >0 && overdueTips(value) < 1 " color="red">
+              逾期 1 天
+            </a-tag>
+            <a-tag v-else-if="overdueTips(value) >=1 " color="red">
+              逾期 {{ parseInt(overdueTips(value)) }} 天
+            </a-tag>
+            <span v-else>{{ value }}</span>
+          </span>
+          <span v-else-if="value">{{ value }}</span>
+          <span v-else>-</span>
+        </template>
         <template slot="actionsRender" slot-scope="value,row">
           <a-space :size="6">
             <a-button
@@ -144,6 +163,7 @@ import {WorkOrder, WorkOrderType, WorkOrderQuery} from "../types/WorkOrder";
 import {Column} from "ant-design-vue/types/table/column";
 import DictItem from "./DictItem";
 import {DictData} from "../types/data";
+import moment from "moment";
 
 @Component({
   name: 'WorkOrderTree',
@@ -205,6 +225,7 @@ export default class WorkOrderTree extends Vue {
       dataIndex: 'deadline',
       align: "center",
       width: 200,
+      scopedSlots: {customRender: 'deadlineRender'},
     }, {
       title: '状态',
       dataIndex: 'status',
@@ -295,6 +316,16 @@ export default class WorkOrderTree extends Vue {
       return this.columns.filter(item => item.dataIndex != 'id')
     }
     return this.columns
+  }
+
+  /* 逾期天数 */
+  overdueTips(dealine: string) {
+    if (dealine) {
+      const day = moment().diff(moment(dealine), 'seconds') / 86400
+      debugger;
+      return day;
+    }
+    return 0;
   }
 
 }

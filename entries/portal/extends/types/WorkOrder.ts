@@ -2,7 +2,7 @@ export type WorkOrderType = 'create' | 'receive';
 
 export type UrgencyDegree = 'NORMAL' | 'URGENCY'
 
-export type WorkOrderStatus = 'PROCESSING' | string;
+export type WorkOrderStatus = 'PROCESSING' | 'OVER' | string;
 
 /* 工单查询条件 */
 export interface WorkOrderQuery {
