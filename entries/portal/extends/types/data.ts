@@ -30,6 +30,6 @@ export interface Dict {
 
 export type DictData = Record<string | number, Dict>
 
-export type DictItem = 'user' | 'department' | 'urgency_degree' | 'work_order_status';
+export type DictItem = 'user' | 'department' | 'urgency_degree' | 'workflow_status';
 
 export type DictItemMap = Record<DictItem, DictData>

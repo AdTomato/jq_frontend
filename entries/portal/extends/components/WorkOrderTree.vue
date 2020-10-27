@@ -5,20 +5,20 @@
       :model="params"
       class="param"
       ref="param">
-      <a-form-model-item>
+      <a-form-model-item class="form-item">
         <a-input
           v-model="params.title"
+          style="top: -2px"
           class="param-width"
           placeholder="请输入标题摘要"
-          style="top:-2px"
           allowClear/>
       </a-form-model-item>
-      <a-form-model-item>
+      <a-form-model-item class="form-item">
         <a-select
           v-model="params.urgency_degree"
           placeholder="请选择紧急程度"
-          allowClear
-          class="param-width">
+          class="param-width"
+          allowClear>
           <a-select-option value="一般">
             一般
           </a-select-option>
@@ -27,12 +27,12 @@
           </a-select-option>
         </a-select>
       </a-form-model-item>
-      <a-form-model-item>
+      <a-form-model-item class="form-item">
         <a-select
           v-model="params.overdue"
           placeholder="请选是否逾期"
-          allowClear
           class="param-width"
+          allowClear
         >
           <a-select-option value="true">
             是
@@ -42,18 +42,19 @@
           </a-select-option>
         </a-select>
       </a-form-model-item>
-      <a-form-model-item>
+      <a-form-model-item class="form-item">
         <a-select
           v-model="params.status"
           placeholder="请选择状态"
+          class="param-width"
           allowClear
-          class="param-width">
-          <a-select-option value="PROCESSING">
-            处理中
+        >
+          <a-select-option v-for="item in statusDict" :value="item.code">
+            {{ item.name }}
           </a-select-option>
         </a-select>
       </a-form-model-item>
-      <a-form-model-item>
+      <a-form-model-item class="form-item">
         <a-space :size="8">
           <a-button
             type="primary"
@@ -250,11 +251,13 @@ export default class WorkOrderTree extends Vue {
   /* 紧急程度数据字典 */
   static urgencyDict: DictData;
 
-  /* 工单状态数据字典 */
+  /* 工作流状态数据字典 */
   static statusDict: DictData;
 
   /* 表格高度 */
   tableHeight: string = '';
+
+  titleStyleFix: string = '-2px';
 
   created() {
     // this.getUserInfo();
@@ -294,7 +297,7 @@ export default class WorkOrderTree extends Vue {
   }
 
   async getStatusDict() {
-    this.statusDict = await ExtApi.getDict('work_order_status');
+    this.statusDict = await ExtApi.getDict('workflow_status');
   }
 
   /* 获取当前用户信息 */
@@ -349,6 +352,17 @@ export default class WorkOrderTree extends Vue {
   .param {
     &-width {
       width: 200px;
+    }
+
+    .form-item {
+      //border: 1px green dashed;
+      /deep/ .ant-form-item-control {
+        height: 40px;
+      }
+
+      /deep/ .ant-select-selection__rendered {
+        overflow: visible;
+      }
     }
   }
 

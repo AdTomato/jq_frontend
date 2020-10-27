@@ -2,14 +2,20 @@ export type WorkOrderType = 'create' | 'receive';
 
 export type UrgencyDegree = string;
 
-export type WorkOrderStatus = 'PROCESSING' | 'OVER' | string;
+export type WorkflowStatus =
+  'DRAFT'
+  | 'PROCESSING'
+  | 'COMPLETED'
+  | 'CANCELED'
+  | 'EXCEPTION'
+  | string;
 
 /* 工单查询条件 */
 export interface WorkOrderQuery {
   title?: string,
   urgency_degree?: UrgencyDegree,
   overdue?: 'true' | 'false' | string,
-  status?: WorkOrderStatus,
+  status?: WorkflowStatus,
   page_number?: number | string;
   page_size?: number | string;
 }
@@ -85,9 +91,9 @@ export interface WorkOrder {
   recipient?: string[];
 
   /**
-   * 工单状态
+   * 工组流状态
    */
-  status: WorkOrderStatus;
+  status: WorkflowStatus;
 
   /**
    * 子工单
