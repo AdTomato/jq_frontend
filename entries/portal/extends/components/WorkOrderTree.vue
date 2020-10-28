@@ -49,8 +49,8 @@
           class="param-width"
           allowClear
         >
-          <a-select-option v-for="item in statusDict" :value="item.code">
-            {{ item.name }}
+          <a-select-option v-for="{code,name} in statusDict" :value="code">
+            {{ name }}
           </a-select-option>
         </a-select>
       </a-form-model-item>
@@ -76,7 +76,8 @@
       <a-table
         v-else
         :columns="calcColums"
-        :data-source="workOrders">
+        :data-source="workOrders"
+        :rowKey="record => record.id">
         <!-- 标题摘要渲染 -->
         <template slot="titleRender" slot-scope="text,row">
           <span v-if="row['transDepartment'] == true" class="work-order-type cooperation">协作</span>
@@ -95,7 +96,7 @@
         </template>
         <!-- 创建人 -->
         <template slot="creatorRender" slot-scope="value">
-          <dict-item :value="value" :data="userDict"/>
+          <dict-item :value="value" :data="userDict" avatar/>
         </template>
         <!-- 工单状态渲染 -->
         <template slot="statusRender" slot-scope="value">
@@ -110,7 +111,7 @@
           <!--        </div>-->
           <!--        <div v-else>-->
           <template v-for="item in value">
-            <dict-item :value="item" :data="userDict"/>
+            <dict-item :value="item" :data="userDict" avatar/>
           </template>
           <!--        </div>-->
         </template>
@@ -169,7 +170,9 @@ import moment from "moment";
 
 @Component({
   name: 'WorkOrderTree',
-  components: {DictItem}
+  components: {
+    DictItem
+  }
 })
 export default class WorkOrderTree extends Vue {
 
@@ -243,16 +246,16 @@ export default class WorkOrderTree extends Vue {
   ]
 
   /* 用户字典 */
-  static userDict: DictData;
+  userDict: DictData;
 
   /* 部门字典 */
-  static departmentDict: DictData;
+  departmentDict: DictData = {};
 
   /* 紧急程度数据字典 */
-  static urgencyDict: DictData;
+  urgencyDict: DictData = {};
 
   /* 工作流状态数据字典 */
-  static statusDict: DictData;
+  statusDict: DictData = {};
 
   /* 表格高度 */
   tableHeight: string = '';
