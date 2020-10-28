@@ -55,6 +55,27 @@
         </a-select>
       </a-form-model-item>
       <a-form-model-item class="form-item">
+        <a-select
+          v-model="params.tree_level"
+          placeholder="请选择子工单显示层级"
+          class="param-width"
+          allowClear
+        >
+          <a-select-option :value="1">
+            一级
+          </a-select-option>
+          <a-select-option :value="2">
+            二级
+          </a-select-option>
+          <a-select-option :value="3">
+            三级
+          </a-select-option>
+          <a-select-option :value="-1">
+            所有
+          </a-select-option>
+        </a-select>
+      </a-form-model-item>
+      <a-form-model-item class="form-item">
         <a-space :size="8">
           <a-button
             type="primary"
@@ -77,7 +98,10 @@
         v-else
         :columns="calcColums"
         :data-source="workOrders"
-        :rowKey="record => record.id">
+        :rowKey="record => record.id"
+        :loading="loading"
+        :indentSize="12"
+      >
         <!-- 标题摘要渲染 -->
         <template slot="titleRender" slot-scope="text,row">
           <span v-if="row['transDepartment'] == true" class="work-order-type cooperation">协作</span>

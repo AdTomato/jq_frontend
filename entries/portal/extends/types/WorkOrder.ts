@@ -18,6 +18,7 @@ export interface WorkOrderQuery {
   status?: WorkflowStatus,
   page_number?: number | string;
   page_size?: number | string;
+  tree_level?: number | string;
 }
 
 /**
