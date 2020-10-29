@@ -159,7 +159,7 @@
           <span v-else>-</span>
         </template>
         <template slot="actionsRender" slot-scope="value,row">
-          <a-space :size="6">
+          <a-space :size="6" v-if="row['status'] === 'PROCESSING'">
             <a-button
               size="small"
               shape="round"
