@@ -214,9 +214,9 @@ export default class CommonHeader extends Vue {
   toAdmin() {
     const token = localStorage.getItem('token');
     if (this.isDingTalk && token) {
-      window.open(`${env.adminHost}/admin?admin_token=${token}`, '_blank');
+      window.open(`${env.adminHost || env.portalHost}/admin?admin_token=${token}`, '_blank');
     } else {
-      window.open(`${env.adminHost}/admin`, '_blank');
+      window.open(`${env.adminHost || env.portalHost}/admin`, '_blank');
     }
   }
 
