@@ -213,12 +213,10 @@ export default class CommonHeader extends Vue {
   // 跳转后台管理
   toAdmin() {
     const token = localStorage.getItem('token');
-    const {adminHost, portalHost} = env;
-    const adminUrl = adminHost || portalHost;
     if (this.isDingTalk && token) {
-      window.open(`${adminUrl}/admin?admin_token=${token}`, '_blank');
+      window.open(`${env.adminHost}/admin?admin_token=${token}`, '_blank');
     } else {
-      window.open(`${adminUrl}/admin`, '_blank');
+      window.open(`${env.adminHost}/admin`, '_blank');
     }
   }
 
