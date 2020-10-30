@@ -1,9 +1,12 @@
 import {WorkOrder, WorkOrderQuery, WorkOrderType} from "../types/WorkOrder";
 import request from './service';
 import {Dict, DictData, DictItem} from "../types/data";
+import env from '../../src/config/env'
 
-const WorkOrderUrl = (uid: string, type: string) => `/api/work_order/${uid}/${type}`;
-const DictUrl = (dictItem: string) => `/api/dict/${dictItem}`;
+const {apiHost} = env;
+
+const WorkOrderUrl = (uid: string, type: string) => `${apiHost}/api/work_order/${uid}/${type}`;
+const DictUrl = (dictItem: string) => `${apiHost}/api/dict/${dictItem}`;
 
 export default {
 
