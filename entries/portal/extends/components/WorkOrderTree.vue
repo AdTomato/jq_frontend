@@ -54,13 +54,16 @@
           </a-select-option>
         </a-select>
       </a-form-model-item>
-      <a-form-model-item class="form-item">
+      <a-form-model-item class="form-item" v-if="workOrderType === 'create'">
         <a-select
           v-model="params.tree_level"
           placeholder="请选择子工单显示层级"
           class="param-width"
           allowClear
         >
+          <a-select-option :value="0">
+            零级
+          </a-select-option>
           <a-select-option :value="1">
             一级
           </a-select-option>
@@ -69,6 +72,12 @@
           </a-select-option>
           <a-select-option :value="3">
             三级
+          </a-select-option>
+          <a-select-option :value="4">
+            四级
+          </a-select-option>
+          <a-select-option :value="5">
+            五级
           </a-select-option>
           <a-select-option :value="-1">
             所有
@@ -109,10 +118,11 @@
           <a
             v-if="row['workflowId']"
             :href="`/form/detail?workflowInstanceId=${row['workflowId']}`"
-            target="_blank">
+            target="_blank"
+            :data-id="row['id']">
             {{ text }}
           </a>
-          <span v-else>{{ text }}</span>
+          <span v-else :data-id="row['id']">{{ text }}</span>
         </template>
         <!-- 紧急程度渲染 -->
         <template slot="urgencyRender" slot-scope="value">
