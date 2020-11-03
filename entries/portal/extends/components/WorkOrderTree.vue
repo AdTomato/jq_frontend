@@ -164,15 +164,17 @@
               size="small"
               shape="round"
               type="primary"
-              :href="`/form/detail?startWorkflowCode=workFlowDeptN&pid=${value}`"
+              :href="`/form/detail?startWorkflowCode=workFlowDeptN`"
               target="_blank"
+              @click="addSubWorkOrder(value,row['transDepartment'])"
               ghost>内部
             </a-button>
             <a-button
               size="small"
               shape="round"
+              :href="`/form/detail?startWorkflowCode=work_flow_k_dept`"
+              @click="addSubWorkOrder(value,row['transDepartment'])"
               target="_blank"
-              :href="`/form/detail?startWorkflowCode=work_flow_k_dept&pid=${value}`"
             >协作
             </a-button>
           </a-space>
@@ -365,6 +367,16 @@ export default class WorkOrderTree extends Vue {
       return day;
     }
     return 1;
+  }
+
+  /**
+   * 添加子工单 - 传递参数
+   * @param pid 父工单ID
+   * @param transDepartment 父工单是否跨部门工单
+   */
+  addSubWorkOrder(pid: string, transDepartment: boolean) {
+    localStorage.setItem('pid', pid);
+    localStorage.setItem('ptype', transDepartment ? '1' : '0');
   }
 
 }
