@@ -96,6 +96,19 @@
         </a-space>
       </a-form-model-item>
     </a-form-model>
+    <div v-if="workOrderType ==='create'" style="margin-top: 12px;">
+      <a-space>
+        <a-button
+          type="primary"
+          @click="addSubWorkOrder(undefined,undefined,false)"
+        >添加内部工单
+        </a-button>
+        <a-button
+          @click="addSubWorkOrder(undefined,undefined,true)"
+        >添加协作工单
+        </a-button>
+      </a-space>
+    </div>
     <div class="table" ref="table" :style="{height: tableHeight}">
       <a-spin
         size="large"
@@ -174,17 +187,13 @@
               size="small"
               shape="round"
               type="primary"
-              :href="`/form/detail?startWorkflowCode=workFlowDeptN`"
-              target="_blank"
-              @click="addSubWorkOrder(value,row['transDepartment'])"
+              @click="addSubWorkOrder(value,row['transDepartment'],false)"
               ghost>内部
             </a-button>
             <a-button
               size="small"
               shape="round"
-              :href="`/form/detail?startWorkflowCode=work_flow_k_dept`"
-              @click="addSubWorkOrder(value,row['transDepartment'])"
-              target="_blank"
+              @click="addSubWorkOrder(value,row['transDepartment'],true)"
             >协作
             </a-button>
           </a-space>
@@ -382,11 +391,21 @@ export default class WorkOrderTree extends Vue {
   /**
    * 添加子工单 - 传递参数
    * @param pid 父工单ID
+   * @param ptype 父工单是否跨部门工单
    * @param transDepartment 父工单是否跨部门工单
    */
-  addSubWorkOrder(pid: string, transDepartment: boolean) {
-    localStorage.setItem('pid', pid);
-    localStorage.setItem('ptype', transDepartment ? '1' : '0');
+  addSubWorkOrder(pid: string, ptype: boolean, transDepartment: boolean) {
+    if (pid) {
+      localStorage.setItem('pid', pid);
+      localStorage.setItem('ptype', ptype ? '1' : '0');
+    }
+
+    if (transDepartment) {
+      window.open('/form/detail?startWorkflowCode=work_flow_k_dept', '_blank');
+    } else {
+      window.open('/form/detail?startWorkflowCode=workFlowDeptN', '_blank');
+    }
+
   }
 
 }
