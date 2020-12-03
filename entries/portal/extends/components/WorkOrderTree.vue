@@ -118,7 +118,7 @@
       />
       <a-table
         v-else
-        :columns="calcColums"
+        :columns="calcColumns"
         :data-source="workOrders"
         :rowKey="record => record.id"
         :loading="loading"
@@ -126,8 +126,8 @@
       >
         <!-- 标题摘要渲染 -->
         <template slot="titleRender" slot-scope="text,row">
-          <span v-if="row['transDepartment'] == true" class="work-order-type cooperation">协作</span>
-          <span v-if="row['transDepartment'] == false" class="work-order-type internal">内部</span>
+          <span v-if="row['transDepartment'] === true" class="work-order-type cooperation">协作</span>
+          <span v-if="row['transDepartment'] === false" class="work-order-type internal">内部</span>
           <a
             v-if="row['workflowId']"
             :href="`/form/detail?workflowInstanceId=${row['workflowId']}`"
@@ -158,7 +158,11 @@
           <!--        </div>-->
           <!--        <div v-else>-->
           <template v-for="item in value">
-            <dict-item :value="item" :data="userDict" avatar/>
+            <dict-item
+              :key="item"
+              :value="item"
+              :data="userDict"
+              avatar/>
           </template>
           <!--        </div>-->
         </template>
@@ -187,13 +191,13 @@
               size="small"
               shape="round"
               type="primary"
-              @click="addSubWorkOrder(value,row['transDepartment'],false)"
+              @click="addSubWorkOrder(value,row,false)"
               ghost>内部
             </a-button>
             <a-button
               size="small"
               shape="round"
-              @click="addSubWorkOrder(value,row['transDepartment'],true)"
+              @click="addSubWorkOrder(value,row,true)"
             >协作
             </a-button>
           </a-space>
@@ -204,10 +208,9 @@
 </template>
 
 <script lang="ts">
-import OAuthApi from "../../src/apis/oauth";
 import ExtApi from '../apis/extapi'
 import {Component, Prop, Vue} from "vue-property-decorator";
-import {WorkOrder, WorkOrderType, WorkOrderQuery} from "../types/WorkOrder";
+import {WorkOrder, WorkOrderQuery, WorkOrderType} from "../types/WorkOrder";
 import {Column} from "ant-design-vue/types/table/column";
 import DictItem from "./DictItem";
 import {DictData} from "../types/data";
@@ -288,7 +291,7 @@ export default class WorkOrderTree extends Vue {
       align: 'center',
       scopedSlots: {customRender: 'actionsRender'},
     }
-  ]
+  ] as Column[]
 
   /* 用户字典 */
   userDict: DictData;
@@ -356,18 +359,18 @@ export default class WorkOrderTree extends Vue {
   /* 查询数据 */
   async query() {
     this.loading = true;
-    const data = await ExtApi.getWorkOrder(this.workOrderType, this.params)
-    // if (this.workOrderType === 'create') {
-    //   console.log('我创建的工单', data)
-    // } else if (this.workOrderType === 'receive') {
-    //   console.log('我收到的工单', data)
-    // }
-    this.workOrders = data;
-    this.loading = false;
+    try {
+      this.workOrders = await ExtApi.getWorkOrder(this.workOrderType, this.params);
+    } catch (e) {
+      console.error(e)
+    } finally {
+      this.loading = false;
+    }
+
   }
 
   /* 计算属性 */
-  get calcColums() {
+  get calcColumns() {
     if (this.workOrderType === 'create') {
       return this.columns.filter(item => item.dataIndex != 'id')
     }
@@ -376,14 +379,13 @@ export default class WorkOrderTree extends Vue {
 
   /**
    * 日期相差天数
-   * @param dealine
+   * @param deadline
    */
-  overdueTips(dealine: string) {
-    if (dealine) {
+  overdueTips(deadline: string) {
+    if (deadline) {
       const now = moment().format('yyyy-MM-DD');
-      const end = moment(dealine).format('yyyy-MM-DD');
-      const day = moment(end).diff(moment(now), 'days')
-      return day;
+      const end = moment(deadline).format('yyyy-MM-DD');
+      return moment(end).diff(moment(now), 'days');
     }
     return 1;
   }
@@ -391,13 +393,27 @@ export default class WorkOrderTree extends Vue {
   /**
    * 添加子工单 - 传递参数
    * @param pid 父工单ID
-   * @param ptype 父工单是否跨部门工单
+   * @param data 父工单数据
    * @param transDepartment 父工单是否跨部门工单
    */
-  addSubWorkOrder(pid: string, ptype: boolean, transDepartment: boolean) {
+  addSubWorkOrder(pid: string, data: object, transDepartment: boolean) {
     if (pid) {
       localStorage.setItem('pid', pid);
-      localStorage.setItem('ptype', ptype ? '1' : '0');
+      debugger;
+      const {transDepartment: cross, title, description, urgencyDegree, deadline} = data || {};
+      const timestamp = moment(deadline).valueOf();
+      debugger;
+      /* 传递到子工单的数据 */
+      localStorage.setItem('transfer_data', JSON.stringify({
+        cross,
+        title,
+        description,
+        urgencyDegree,
+        deadline: timestamp
+      }));
+
+      /* 定时器获取是否有此值，自动查询数据 */
+      localStorage.setItem('work_order_refresh', 'true');
     }
 
     if (transDepartment) {

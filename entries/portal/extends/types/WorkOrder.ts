@@ -47,6 +47,11 @@ export interface WorkOrder {
   title: string;
 
   /**
+   * 工作内容描述
+   */
+  description: string;
+
+  /**
    * 创建人
    */
   creator: string;
